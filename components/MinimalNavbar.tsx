@@ -13,8 +13,8 @@ export default function MinimalNavbar() {
       <AntiGravityWrapper delay={0} fallDistance={60} stiffness={50} damping={12}>
         <a
           href="#"
-          className="font-display text-3xl md:text-4xl tracking-wide text-forest"
-          style={{ letterSpacing: "0.04em" }}
+          className="font-display text-2xl tracking-wide"
+          style={{ color: "var(--forest)" }}
         >
           Wildflower
         </a>
@@ -25,7 +25,8 @@ export default function MinimalNavbar() {
         <AntiGravityWrapper delay={0.08} fallDistance={60} stiffness={55} damping={13}>
           <a
             href="#story"
-            className="font-sans text-sm font-medium uppercase tracking-widest text-forest opacity-70 hover:opacity-100 transition-opacity"
+            className="font-sans text-xs uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity duration-300"
+            style={{ color: "var(--forest)" }}
           >
             Our Story
           </a>

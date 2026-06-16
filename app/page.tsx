@@ -1,66 +1,66 @@
 "use client";
 
-import { useRef } from "react";
-import { useScroll, useTransform, motion } from "framer-motion";
+import { useState } from "react";
+import { products } from "@/data/product";
+
 import MinimalNavbar from "@/components/MinimalNavbar";
 import HeroCanvasScroll from "@/components/HeroCanvasScroll";
 import ContentSections from "@/components/ContentSections";
 import MinimalFooter from "@/components/MinimalFooter";
-import AntiGravityWrapper from "@/components/AntiGravityWrapper";
-import { product } from "@/data/product";
+import { motion } from "framer-motion";
 
-export default function HomePage() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
+export default function Home() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const product = products[activeIndex];
 
-  // Pills fade out as the hero scroll section exits
-  const pillsOpacity = useTransform(scrollYProgress, [0.8, 1], [1, 0]);
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % products.length);
+  };
+
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + products.length) % products.length);
+  };
 
   return (
-    <main>
+    <main className="bg-cream min-h-screen text-forest overflow-hidden">
       <MinimalNavbar />
 
-      {/* Floating feature pills — anchored to bottom-left, fade with hero */}
-      <motion.div
-        style={{ opacity: pillsOpacity }}
-        className="fixed bottom-10 left-8 z-40 flex flex-col gap-2 pointer-events-none"
-      >
-        {product.features.map((feature, i) => (
-          <AntiGravityWrapper
-            key={feature}
-            delay={0.3 + i * 0.1}
-            fallDistance={50}
-            stiffness={55}
-            damping={13}
-          >
-            <span
-              className="inline-block font-sans text-xs font-medium uppercase tracking-widest px-4 py-2"
-              style={{
-                backgroundColor: "rgba(237, 232, 220, 0.85)",
-                color: "var(--forest)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-                border: "1px solid rgba(200, 212, 191, 0.5)",
-              }}
+      {/* Duality Toggle Pill */}
+      <div className="fixed top-24 left-1/2 -translate-x-1/2 z-30 flex items-center bg-mist/50 backdrop-blur-md rounded-full p-1 border border-sage/20 shadow-xl">
+        {products.map((p, i) => {
+          const isActive = activeIndex === i;
+          return (
+            <button
+              key={p.id}
+              onClick={() => setActiveIndex(i)}
+              className={`relative px-6 py-2 rounded-full font-sans text-xs uppercase tracking-widest transition-colors duration-300 ${
+                isActive ? "text-cream" : "text-forest/70 hover:text-forest"
+              }`}
             >
-              {feature}
-            </span>
-          </AntiGravityWrapper>
-        ))}
-      </motion.div>
-
-      {/* Hero canvas scroll — 400vh */}
-      <div ref={heroRef}>
-        <HeroCanvasScroll />
+              {isActive && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="absolute inset-0 bg-forest rounded-full"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">{p.id}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Content (cream bg) */}
-      <ContentSections />
+      <HeroCanvasScroll 
+        product={product} 
+        onNext={handleNext} 
+        onPrev={handlePrev} 
+      />
 
-      {/* Footer */}
+      {/* Floating Pill behind content */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-sage opacity-10 blur-[120px] rounded-full pointer-events-none mix-blend-screen -z-10" />
+
+      <ContentSections product={product} />
+
       <MinimalFooter />
     </main>
   );

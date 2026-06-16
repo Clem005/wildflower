@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useScroll, motion } from "framer-motion";
-import { product } from "@/data/product";
+import { useEffect, useRef, useState } from "react";
+import { useScroll, motion, useTransform } from "framer-motion";
+import { Product } from "@/data/product";
 import AntiGravityWrapper from "./AntiGravityWrapper";
 
-export default function HeroCanvasScroll() {
+interface HeroCanvasScrollProps {
+  product: Product;
+  onNext: () => void;
+  onPrev: () => void;
+}
+
+export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvasScrollProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -43,22 +49,30 @@ export default function HeroCanvasScroll() {
     return () => window.removeEventListener("resize", resize);
   }, []);
 
-  // ─── Preload all frames ──────────────────────────────────────────
+  // ─── Preload all frames on product change ───────────────────────
   useEffect(() => {
+    // Reset state for new product
+    introPlaying.current = true;
+    if (introTimerRef.current) clearInterval(introTimerRef.current);
+    if (introTimeoutRef.current) clearTimeout(introTimeoutRef.current);
+    
+    frames.current = Array(product.totalFrames).fill(null);
+    currentFrame.current = product.totalFrames - 1;
+
+    let loadedCount = 0;
     for (let i = 0; i < product.totalFrames; i++) {
       const img = new Image();
       const idx = i;
       img.onload = () => {
         frames.current[idx] = img;
+        loadedCount++;
         // Show last frame as soon as it's ready (for intro start)
         if (idx === product.totalFrames - 1) drawFrame(idx);
       };
-      img.src = `${product.folderPath}/${String(i + 1).padStart(3, "0")}.jpg`;
+      img.src = `${product.folderPath}/${String(i + 1).padStart(3, "0")}${product.fileExtension}`;
     }
-  }, []);
 
-  // ─── Backwards intro: frame 89 → 0 ──────────────────────────────
-  useEffect(() => {
+    // Backwards intro: frame N-1 → 0
     introTimeoutRef.current = setTimeout(() => {
       let frame = product.totalFrames - 1;
       currentFrame.current = frame;
@@ -76,13 +90,13 @@ export default function HeroCanvasScroll() {
         currentFrame.current = frame;
         drawFrame(frame);
       }, 25); // ~40 fps
-    }, 700);
+    }, 400);
 
     return () => {
       if (introTimeoutRef.current) clearTimeout(introTimeoutRef.current);
       if (introTimerRef.current) clearInterval(introTimerRef.current);
     };
-  }, []);
+  }, [product]);
 
   // ─── Scroll → frame (RAF-batched) ───────────────────────────────
   useEffect(() => {
@@ -93,6 +107,7 @@ export default function HeroCanvasScroll() {
         Math.floor(v * product.totalFrames),
         product.totalFrames - 1
       );
+
       if (frameIndex === currentFrame.current) return;
       currentFrame.current = frameIndex;
 
@@ -103,7 +118,7 @@ export default function HeroCanvasScroll() {
       });
     });
     return unsubscribe;
-  }, [scrollYProgress]);
+  }, [scrollYProgress, product.totalFrames]);
 
   // ─── Draw ────────────────────────────────────────────────────────
   function drawFrame(index: number) {
@@ -137,17 +152,28 @@ export default function HeroCanvasScroll() {
     ctx.restore();
   }
 
+  // Handle Drag
+  const handleDragEnd = (e: any, { offset, velocity }: any) => {
+    const swipe = Math.abs(offset.x) * velocity.x;
+    if (swipe < -10000) {
+      onNext();
+    } else if (swipe > 10000) {
+      onPrev();
+    } else if (offset.x < -100) {
+      onNext();
+    } else if (offset.x > 100) {
+      onPrev();
+    }
+  };
+
+  const indicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
+
   return (
     <section
       ref={sectionRef}
       id="story"
-      className="relative"
-      style={{ height: "250vh" }}
+      className="relative w-full h-[100vh] overflow-hidden"
     >
-      <div
-        className="sticky top-0 w-full overflow-hidden"
-        style={{ height: "100vh" }}
-      >
         <AntiGravityWrapper
           delay={0.1}
           fallDistance={80}
@@ -156,25 +182,61 @@ export default function HeroCanvasScroll() {
           mass={2}
           className="w-full h-full"
         >
-          <canvas ref={canvasRef} style={{ display: "block" }} />
+          <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
         </AntiGravityWrapper>
 
-        {/* Scroll indicator — fades away after intro finishes */}
-        <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
-          animate={{ opacity: [1, 1, 0] }}
-          transition={{ duration: 2, delay: 3.5, ease: "easeOut" }}
-        >
-          <span className="font-sans text-xs uppercase tracking-widest text-cream opacity-80">
-            Scroll
-          </span>
+        {/* Steamy Smoke Transition at the bottom */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-48 z-10 pointer-events-none"
+          style={{
+            background: "linear-gradient(to top, var(--cream) 0%, rgba(245,240,232,0.8) 30%, rgba(245,240,232,0) 100%)",
+            filter: "blur(8px)"
+          }}
+        />
+
+        {/* Interactive Overlay for Swiping & Arrows */}
+        <div className="absolute inset-0 z-20 pointer-events-none">
           <motion.div
-            className="w-px bg-cream opacity-60"
-            animate={{ height: [12, 28, 12] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-0 pointer-events-auto cursor-grab active:cursor-grabbing"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={handleDragEnd}
           />
-        </motion.div>
-      </div>
+          
+          {/* Scroll indicator */}
+          <motion.div
+            style={{ opacity: indicatorOpacity }}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none z-0"
+          >
+            <span className="font-sans text-xs uppercase tracking-widest text-forest opacity-80">
+              Scroll or Swipe
+            </span>
+            <motion.div
+              className="w-px bg-forest opacity-60"
+              animate={{ height: [12, 28, 12] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </motion.div>
+
+          {/* Swipe Chevrons */}
+          <div 
+            className="absolute top-1/2 left-4 -translate-y-1/2 pointer-events-auto cursor-pointer opacity-50 hover:opacity-100 transition-opacity text-forest p-4"
+            onClick={onPrev}
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </div>
+          <div 
+            className="absolute top-1/2 right-4 -translate-y-1/2 pointer-events-auto cursor-pointer opacity-50 hover:opacity-100 transition-opacity text-forest p-4"
+            onClick={onNext}
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
     </section>
   );
 }
