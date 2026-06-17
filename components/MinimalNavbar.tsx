@@ -6,14 +6,14 @@ import MagneticElement from "./MagneticElement";
 export default function MinimalNavbar() {
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6"
+      className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6"
       style={{ background: "transparent" }}
     >
       {/* Brand */}
       <AntiGravityWrapper delay={0} fallDistance={60} stiffness={50} damping={12}>
         <a
           href="#"
-          className="font-display text-2xl tracking-wide"
+          className="font-display text-4xl tracking-wide font-medium"
           style={{ color: "var(--forest)" }}
         >
           Wildflower
@@ -25,7 +25,7 @@ export default function MinimalNavbar() {
         <AntiGravityWrapper delay={0.08} fallDistance={60} stiffness={55} damping={13}>
           <a
             href="#story"
-            className="font-sans text-xs uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity duration-300"
+            className="font-sans text-sm font-medium uppercase tracking-widest opacity-90 hover:opacity-100 transition-opacity duration-300"
             style={{ color: "var(--forest)" }}
           >
             Our Story
@@ -34,7 +34,7 @@ export default function MinimalNavbar() {
         <AntiGravityWrapper delay={0.14} fallDistance={60} stiffness={55} damping={13}>
           <a
             href="#details"
-            className="font-sans text-sm font-medium uppercase tracking-widest text-forest opacity-70 hover:opacity-100 transition-opacity"
+            className="font-sans text-sm font-semibold uppercase tracking-widest text-forest opacity-90 hover:opacity-100 transition-opacity"
           >
             Ingredients
           </a>
@@ -43,7 +43,7 @@ export default function MinimalNavbar() {
           <MagneticElement strength={5} radius={70}>
             <a
               href="#buy"
-              className="font-sans text-sm font-medium uppercase tracking-widest px-6 py-3 border border-forest text-forest hover:bg-forest hover:text-cream transition-all duration-300"
+              className="font-sans text-base font-semibold uppercase tracking-widest px-8 py-4 border-2 border-forest text-forest hover:bg-forest hover:text-cream transition-all duration-300"
             >
               Pre-order
             </a>

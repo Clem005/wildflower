@@ -17,7 +17,7 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end end"],
+    offset: ["start start", "end start"],
   });
 
   const frames = useRef<(HTMLImageElement | null)[]>(
@@ -59,8 +59,9 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
     frames.current = Array(product.totalFrames).fill(null);
     currentFrame.current = product.totalFrames - 1;
 
+    // Load frames backwards so the intro animation (which plays backwards) gets its frames first
     let loadedCount = 0;
-    for (let i = 0; i < product.totalFrames; i++) {
+    for (let i = product.totalFrames - 1; i >= 0; i--) {
       const img = new Image();
       const idx = i;
       img.onload = () => {
@@ -79,16 +80,22 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
       drawFrame(frame);
 
       introTimerRef.current = setInterval(() => {
-        frame--;
-        if (frame < 0) {
+        const nextFrame = frame - 1;
+        if (nextFrame < 0) {
           if (introTimerRef.current) clearInterval(introTimerRef.current);
           introPlaying.current = false;
           currentFrame.current = 0;
           drawFrame(0);
           return;
         }
-        currentFrame.current = frame;
-        drawFrame(frame);
+
+        // Buffering: Only proceed if the next frame is loaded
+        const nextImg = frames.current[nextFrame];
+        if (nextImg && nextImg.complete && nextImg.naturalWidth > 0) {
+          frame = nextFrame;
+          currentFrame.current = frame;
+          drawFrame(frame);
+        }
       }, 25); // ~40 fps
     }, 400);
 
@@ -138,16 +145,26 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
     const iw = img.naturalWidth;
     const ih = img.naturalHeight;
 
-    // Cover-fill — no letterboxing
-    const scale = Math.max(lw / iw, lh / ih);
+    ctx.save();
+    ctx.scale(dpr, dpr);
+
+    // Fill background with cream color to prevent empty boxes when zoomed out
+    ctx.fillStyle = "#f5f0e8";
+    ctx.fillRect(0, 0, lw, lh);
+
+    // Base cover-fill scale
+    let scale = Math.max(lw / iw, lh / ih);
+
+    // Zoom out on mobile screens so the product isn't too massive
+    if (lw < 768) {
+      scale = scale * 0.7; // Reduce scale by 30%
+    }
+
     const dw = iw * scale;
     const dh = ih * scale;
     const dx = (lw - dw) / 2;
     const dy = (lh - dh) / 2;
 
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, lw, lh);
     ctx.drawImage(img, dx, dy, dw, dh);
     ctx.restore();
   }
@@ -190,7 +207,9 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
           className="absolute bottom-0 left-0 right-0 h-48 z-10 pointer-events-none"
           style={{
             background: "linear-gradient(to top, var(--cream) 0%, rgba(245,240,232,0.8) 30%, rgba(245,240,232,0) 100%)",
-            filter: "blur(8px)"
+            filter: "blur(8px)",
+            WebkitFilter: "blur(8px)",
+            transform: "translateY(10px) scaleX(1.05)", // slightly expand to hide hard blurred edges at the bottom/sides
           }}
         />
 

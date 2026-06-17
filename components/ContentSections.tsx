@@ -65,9 +65,14 @@ export default function ContentSections({ product }: { product: Product }) {
               </FadeUp>
 
               <FadeUp delay={0.1}>
-                <h1 className="font-display text-5xl md:text-7xl leading-none text-forest mb-6">
-                  {product.name}
-                </h1>
+                <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 mb-6">
+                  <h1 className="font-display text-5xl md:text-7xl leading-none text-forest">
+                    {product.name}
+                  </h1>
+                  <span className="inline-flex items-center justify-center font-sans text-[10px] uppercase tracking-[0.2em] px-4 py-1.5 border border-sage text-sage rounded-full self-start md:self-center mt-2 md:mt-0">
+                    Coming Soon
+                  </span>
+                </div>
               </FadeUp>
 
               <FadeUp delay={0.2}>

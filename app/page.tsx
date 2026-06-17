@@ -26,7 +26,7 @@ export default function Home() {
       <MinimalNavbar />
 
       {/* Duality Toggle Pill */}
-      <div className="fixed top-24 left-1/2 -translate-x-1/2 z-30 flex items-center bg-mist/50 backdrop-blur-md rounded-full p-1 border border-sage/20 shadow-xl">
+      <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 flex items-center bg-mist/50 backdrop-blur-md rounded-full p-1 border border-sage/20 shadow-xl">
         {products.map((p, i) => {
           const isActive = activeIndex === i;
           return (

@@ -34,9 +34,8 @@ export const products: Product[] = [
     },
     buyNowSection: {
       price: "R 520.00",
-      unit: "per 250ml bottle",
-      deliveryPromise:
-        "Dispatched within 24 hours. Elegantly packaged in eco-conscious materials.",
+      unit: "Coming Soon",
+      deliveryPromise: "",
     },
   },
   {
@@ -60,9 +59,8 @@ export const products: Product[] = [
     },
     buyNowSection: {
       price: "R 540.00",
-      unit: "per 250ml bottle",
-      deliveryPromise:
-        "Dispatched within 24 hours. Elegantly packaged in eco-conscious materials.",
+      unit: "Coming Soon",
+      deliveryPromise: "",
     },
   },
 ];

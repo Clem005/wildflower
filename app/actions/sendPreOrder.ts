@@ -16,23 +16,27 @@ export async function sendPreOrder(formData: FormData) {
       return { success: false, error: "Missing required fields" };
     }
 
-    const htmlContent = `
-      <h2>New Pre-Order Received!</h2>
-      <p><strong>Product:</strong> ${product}</p>
-      <hr />
-      <h3>Customer Details:</h3>
-      <p><strong>Name:</strong> ${fullName}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Phone:</strong> ${phone || "Not provided"}</p>
-      <p><strong>Shipping Address:</strong><br />${address}</p>
+    const customerHtmlContent = `
+      <div style="font-family: sans-serif; color: #333;">
+        <h2 style="color: #4C5C44;">Thank you for your Pre-Order!</h2>
+        <p>Hi ${fullName},</p>
+        <p>We've successfully received your pre-order for <strong>${product}</strong>.</p>
+        <p><em>Please note that this is a pre-buy. We will officially reach out to you with further details when the product officially launches!</em></p>
+        <br />
+        <h3>Your Details:</h3>
+        <p><strong>Shipping Address:</strong><br />${address}</p>
+        <p><strong>Phone:</strong> ${phone || "Not provided"}</p>
+        <br />
+        <p>Warmly,<br />The Wildflower Team</p>
+      </div>
     `;
 
     const data = await resend.emails.send({
       from: "Wildflower Pre-Orders <onboarding@resend.dev>",
-      to: ["viralklick@gmail.com"],
-      subject: `New Pre-Order: ${product} from ${fullName}`,
-      html: htmlContent,
-      replyTo: email,
+      to: [email],
+      bcc: ["somaya@mywildflower.co.za", "viralklick@gmail.com"],
+      subject: `Your Wildflower Pre-Order: ${product}`,
+      html: customerHtmlContent,
     });
 
     if (data.error) {
