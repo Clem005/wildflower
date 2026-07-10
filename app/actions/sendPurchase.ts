@@ -45,16 +45,48 @@ export async function sendPurchase(formData: FormData) {
       </div>
     `;
 
-    const data = await resend.emails.send({
-      from: "Wildflower Orders <orders@mywildflower.co.za>",
-      to: [email],
-      bcc: ["somaya@mywildflower.co.za", "orders@mywildflower.co.za"],
-      subject: `Your Wildflower Order: ${product}`,
-      html: customerHtmlContent,
-    });
+    const adminHtmlContent = `
+      <div style="font-family: sans-serif; color: #333; max-width: 600px; padding: 20px;">
+        <h2>🚨 New Order Received!</h2>
+        <p><strong>${fullName}</strong> has just placed a new order.</p>
+        
+        <h3>Order Details:</h3>
+        <ul>
+          <li><strong>Product:</strong> ${product}</li>
+          <li><strong>Customer Name:</strong> ${fullName}</li>
+          <li><strong>Customer Email:</strong> ${email}</li>
+          <li><strong>Customer Phone:</strong> ${phone}</li>
+        </ul>
+        
+        <h3>Shipping Address:</h3>
+        <p>${address}</p>
+        
+        <br />
+        <p><em>Please reach out to the customer at ${email} to communicate the next steps for their order.</em></p>
+      </div>
+    `;
 
-    if (data.error) {
-      return { success: false, error: data.error.message };
+    const [customerData, adminData] = await Promise.all([
+      resend.emails.send({
+        from: "Wildflower Orders <orders@mywildflower.co.za>",
+        to: [email],
+        subject: \`Your Wildflower Order: \${product}\`,
+        html: customerHtmlContent,
+      }),
+      resend.emails.send({
+        from: "Wildflower Orders <orders@mywildflower.co.za>",
+        to: ["orders@mywildflower.co.za"],
+        subject: \`NEW ORDER: \${product} - \${fullName}\`,
+        html: adminHtmlContent,
+      })
+    ]);
+
+    if (customerData.error) {
+      return { success: false, error: customerData.error.message };
+    }
+    
+    if (adminData.error) {
+      return { success: false, error: adminData.error.message };
     }
 
     return { success: true };
