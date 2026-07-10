@@ -17,17 +17,31 @@ export async function sendPurchase(formData: FormData) {
     }
 
     const customerHtmlContent = `
-      <div style="font-family: sans-serif; color: #333;">
-        <h2 style="color: #4C5C44;">Thank you for your Purchase!</h2>
-        <p>Hi ${fullName},</p>
-        <p>We've successfully received your order for <strong>${product}</strong>.</p>
-        <p><em>Your order is currently being processed. We will reach out to you with tracking details as soon as it ships!</em></p>
-        <br />
-        <h3>Your Details:</h3>
-        <p><strong>Shipping Address:</strong><br />${address}</p>
-        <p><strong>Phone:</strong> ${phone || "Not provided"}</p>
-        <br />
-        <p>Warmly,<br />The Wildflower Team</p>
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #E4DCD3; padding: 40px; color: #2A3324; text-align: center;">
+        <h1 style="font-size: 24px; font-weight: normal; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 40px; border-bottom: 1px solid rgba(42, 51, 36, 0.2); padding-bottom: 20px;">Wildflower</h1>
+        
+        <h2 style="font-size: 20px; font-weight: normal; margin-bottom: 20px;">Order Received</h2>
+        
+        <p style="font-size: 14px; line-height: 1.8; margin-bottom: 20px;">Dear ${fullName},</p>
+        
+        <p style="font-size: 14px; line-height: 1.8; margin-bottom: 30px;">
+          Thank you for placing your order for the <strong>${product}</strong>. We are thrilled to welcome you to the Wildflower ritual.
+        </p>
+
+        <p style="font-size: 14px; line-height: 1.8; margin-bottom: 40px;">
+          <em>We will get to your order shortly. Our team is currently preparing your botanicals, and we will communicate the next steps and tracking details to you very soon.</em>
+        </p>
+        
+        <div style="text-align: left; background-color: rgba(255, 255, 255, 0.3); padding: 30px; margin-bottom: 40px;">
+          <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; opacity: 0.7;">Shipping Details</h3>
+          <p style="font-size: 14px; margin: 0; line-height: 1.6;">${address}</p>
+          <p style="font-size: 14px; margin: 10px 0 0 0;">Phone: ${phone}</p>
+        </div>
+        
+        <p style="font-size: 14px; line-height: 1.8; opacity: 0.8;">
+          Warmly,<br />
+          The Wildflower Team
+        </p>
       </div>
     `;
 

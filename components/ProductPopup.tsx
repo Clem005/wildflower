@@ -113,7 +113,7 @@ export default function ProductPopup({ isOpen, onClose, product }: ProductPopupP
                             onClick={() => setSelectedVariant(variant)}
                             className="font-sans text-xs font-medium uppercase tracking-widest px-6 py-3 bg-forest text-cream hover:bg-sage transition-colors"
                           >
-                            Purchase
+                            Place Order
                           </button>
                         </div>
                       </div>

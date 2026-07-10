@@ -80,7 +80,7 @@ export default function PurchaseModal({ isOpen, onClose, productName, variantNam
                 </div>
                 <h3 className="font-display text-3xl text-forest mb-2">Order Received</h3>
                 <p className="font-sans text-sm text-charcoal/70 mb-8">
-                  Thank you for purchasing the {productName} ({variantName}). We&apos;ve sent a confirmation to your email and will be in touch soon!
+                  Thank you for placing your order for the {productName} ({variantName}). Please check your email inbox for confirmation and next steps. We will get to your order shortly!
                 </p>
                 <button
                   onClick={onClose}
@@ -93,7 +93,7 @@ export default function PurchaseModal({ isOpen, onClose, productName, variantNam
               <>
                 <div className="mb-8">
                   <p className="font-sans text-xs uppercase tracking-widest text-sage mb-2">
-                    Purchase
+                    Place Order
                   </p>
                   <h3 className="font-display text-3xl text-forest leading-tight">
                     {productName}
@@ -154,7 +154,7 @@ export default function PurchaseModal({ isOpen, onClose, productName, variantNam
                     disabled={status === "loading"}
                     className="mt-6 w-full bg-forest text-cream py-4 uppercase tracking-widest text-xs font-semibold hover:bg-charcoal transition-colors disabled:opacity-70 disabled:cursor-wait"
                   >
-                    {status === "loading" ? "Processing..." : "Complete Purchase"}
+                    {status === "loading" ? "Processing..." : "Place Order"}
                   </button>
                 </form>
               </>
