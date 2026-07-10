@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ProductParent, ProductVariant } from "@/data/product";
 import { useEffect, useState } from "react";
 import PurchaseModal from "./PurchaseModal";
+import Image from "next/image";
 
 interface ProductPopupProps {
   isOpen: boolean;
@@ -88,9 +89,12 @@ export default function ProductPopup({ isOpen, onClose, product }: ProductPopupP
                   {activeProduct.variants.map((variant) => (
                     <div key={variant.id} className="flex flex-col border border-mist hover:border-sage transition-colors duration-300 rounded-sm bg-white/30 overflow-hidden">
                       <div className="relative aspect-square bg-sage/5">
-                        <img 
+                        <Image 
                           src={variant.image} 
                           alt={variant.name}
+                          width={400}
+                          height={400}
+                          quality={100}
                           className="absolute inset-0 w-full h-full object-cover"
                         />
                       </div>

@@ -6,6 +6,7 @@ import MinimalNavbar from "@/components/MinimalNavbar";
 import MinimalFooter from "@/components/MinimalFooter";
 import FadeUp from "@/components/FadeUp";
 import ProductPopup from "@/components/ProductPopup";
+import Image from "next/image";
 
 export default function CataloguePage() {
   const [selectedProduct, setSelectedProduct] = useState<ProductParent | null>(null);
@@ -33,9 +34,12 @@ export default function CataloguePage() {
                 className="group block w-full flex flex-col items-center text-center cursor-pointer"
               >
                 <div className="relative aspect-[4/5] w-full max-w-[280px] md:max-w-[320px] mb-8 group-hover:-translate-y-2 transition-transform duration-700">
-                  <img 
+                  <Image 
                     src={product.coverImage} 
                     alt={product.name}
+                    width={400}
+                    height={500}
+                    quality={100}
                     className="w-full h-full object-cover"
                   />
                   {/* Steamy fade out at the bottom */}
