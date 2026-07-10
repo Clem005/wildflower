@@ -23,13 +23,18 @@ export default function PurchaseModal({ isOpen, onClose, productName, variantNam
     const formData = new FormData(e.currentTarget);
     formData.append("product", `${productName} - ${variantName}`);
 
-    const result = await sendPurchase(formData);
+    try {
+      const result = await sendPurchase(formData);
 
-    if (result.success) {
-      setStatus("success");
-    } else {
+      if (result.success) {
+        setStatus("success");
+      } else {
+        setStatus("error");
+        setErrorMessage(result.error || "Failed to submit. Please try again.");
+      }
+    } catch (err) {
       setStatus("error");
-      setErrorMessage(result.error || "Failed to submit. Please try again.");
+      setErrorMessage("A server error occurred. Please try again.");
     }
   };
 
