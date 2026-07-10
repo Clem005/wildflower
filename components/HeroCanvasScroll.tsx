@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useScroll, motion, useTransform } from "framer-motion";
-import { Product } from "@/data/product";
 import AntiGravityWrapper from "./AntiGravityWrapper";
 
 interface HeroCanvasScrollProps {
