@@ -2,6 +2,7 @@
 
 import AntiGravityWrapper from "./AntiGravityWrapper";
 import MagneticElement from "./MagneticElement";
+import Link from "next/link";
 
 export default function MinimalNavbar() {
   return (
@@ -11,42 +12,35 @@ export default function MinimalNavbar() {
     >
       {/* Brand */}
       <AntiGravityWrapper delay={0} fallDistance={60} stiffness={50} damping={12}>
-        <a
-          href="#"
+        <Link
+          href="/"
           className="font-display text-4xl tracking-wide font-medium"
           style={{ color: "var(--forest)" }}
         >
           Wildflower
-        </a>
+        </Link>
       </AntiGravityWrapper>
 
       {/* Nav Links */}
       <div className="hidden md:flex items-center gap-10">
         <AntiGravityWrapper delay={0.08} fallDistance={60} stiffness={55} damping={13}>
-          <a
-            href="#story"
+          <Link
+            href="/"
             className="font-sans text-sm font-medium uppercase tracking-widest opacity-90 hover:opacity-100 transition-opacity duration-300"
             style={{ color: "var(--forest)" }}
           >
             Our Story
-          </a>
+          </Link>
         </AntiGravityWrapper>
-        <AntiGravityWrapper delay={0.14} fallDistance={60} stiffness={55} damping={13}>
-          <a
-            href="#details"
-            className="font-sans text-sm font-semibold uppercase tracking-widest text-forest opacity-90 hover:opacity-100 transition-opacity"
-          >
-            Ingredients
-          </a>
-        </AntiGravityWrapper>
+        
         <AntiGravityWrapper delay={0.2} fallDistance={60} stiffness={55} damping={13}>
           <MagneticElement strength={5} radius={70}>
-            <a
-              href="#buy"
+            <Link
+              href="/catalogue"
               className="font-sans text-base font-semibold uppercase tracking-widest px-8 py-4 border-2 border-forest text-forest hover:bg-forest hover:text-cream transition-all duration-300"
             >
-              Pre-order
-            </a>
+              Catalogue
+            </Link>
           </MagneticElement>
         </AntiGravityWrapper>
       </div>

@@ -6,12 +6,18 @@ import { Product } from "@/data/product";
 import AntiGravityWrapper from "./AntiGravityWrapper";
 
 interface HeroCanvasScrollProps {
-  product: Product;
-  onNext: () => void;
-  onPrev: () => void;
+  folderPath: string;
+  totalFrames: number;
+  baseExtension?: string;
+  finalExtension?: string;
 }
 
-export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvasScrollProps) {
+export default function HeroCanvasScroll({ 
+  folderPath, 
+  totalFrames, 
+  baseExtension = ".jpg", 
+  finalExtension = ".jpg" 
+}: HeroCanvasScrollProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -21,9 +27,9 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
   });
 
   const frames = useRef<(HTMLImageElement | null)[]>(
-    Array(product.totalFrames).fill(null)
+    Array(totalFrames).fill(null)
   );
-  const currentFrame = useRef<number>(product.totalFrames - 1);
+  const currentFrame = useRef<number>(totalFrames - 1);
   const introPlaying = useRef<boolean>(true);
   const introTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const introTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -56,26 +62,28 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
     if (introTimerRef.current) clearInterval(introTimerRef.current);
     if (introTimeoutRef.current) clearTimeout(introTimeoutRef.current);
     
-    frames.current = Array(product.totalFrames).fill(null);
-    currentFrame.current = product.totalFrames - 1;
+    frames.current = Array(totalFrames).fill(null);
+    currentFrame.current = totalFrames - 1;
 
     // Load frames backwards so the intro animation (which plays backwards) gets its frames first
     let loadedCount = 0;
-    for (let i = product.totalFrames - 1; i >= 0; i--) {
+    for (let i = totalFrames - 1; i >= 0; i--) {
       const img = new Image();
       const idx = i;
       img.onload = () => {
         frames.current[idx] = img;
         loadedCount++;
         // Show last frame as soon as it's ready (for intro start)
-        if (idx === product.totalFrames - 1) drawFrame(idx);
+        if (idx === totalFrames - 1) drawFrame(idx);
       };
-      img.src = `${product.folderPath}/${String(i + 1).padStart(3, "0")}${product.fileExtension}`;
+      const extension = i === totalFrames - 1 ? finalExtension : baseExtension;
+      // Note: ffmpeg %03d starts at 001, so i+1 is correct
+      img.src = `${folderPath}/${String(i + 1).padStart(3, "0")}${extension}`;
     }
 
     // Backwards intro: frame N-1 → 0
     introTimeoutRef.current = setTimeout(() => {
-      let frame = product.totalFrames - 1;
+      let frame = totalFrames - 1;
       currentFrame.current = frame;
       drawFrame(frame);
 
@@ -98,12 +106,11 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
         }
       }, 25); // ~40 fps
     }, 400);
-
     return () => {
       if (introTimeoutRef.current) clearTimeout(introTimeoutRef.current);
       if (introTimerRef.current) clearInterval(introTimerRef.current);
     };
-  }, [product]);
+  }, [folderPath, totalFrames, baseExtension, finalExtension]);
 
   // ─── Scroll → frame (RAF-batched) ───────────────────────────────
   useEffect(() => {
@@ -111,8 +118,8 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
       if (introPlaying.current) return;
 
       const frameIndex = Math.min(
-        Math.floor(v * product.totalFrames),
-        product.totalFrames - 1
+        Math.floor(v * totalFrames),
+        totalFrames - 1
       );
 
       if (frameIndex === currentFrame.current) return;
@@ -125,7 +132,7 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
       });
     });
     return unsubscribe;
-  }, [scrollYProgress, product.totalFrames]);
+  }, [scrollYProgress, totalFrames]);
 
   // ─── Draw ────────────────────────────────────────────────────────
   function drawFrame(index: number) {
@@ -149,7 +156,7 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
     ctx.scale(dpr, dpr);
 
     // Fill background with cream color to prevent empty boxes when zoomed out
-    ctx.fillStyle = "#f5f0e8";
+    ctx.fillStyle = "#E4DCD3";
     ctx.fillRect(0, 0, lw, lh);
 
     // Base cover-fill scale
@@ -168,20 +175,6 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
     ctx.drawImage(img, dx, dy, dw, dh);
     ctx.restore();
   }
-
-  // Handle Drag
-  const handleDragEnd = (e: any, { offset, velocity }: any) => {
-    const swipe = Math.abs(offset.x) * velocity.x;
-    if (swipe < -10000) {
-      onNext();
-    } else if (swipe > 10000) {
-      onPrev();
-    } else if (offset.x < -100) {
-      onNext();
-    } else if (offset.x > 100) {
-      onPrev();
-    }
-  };
 
   const indicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
 
@@ -206,7 +199,7 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
         <div 
           className="absolute bottom-0 left-0 right-0 h-48 z-10 pointer-events-none"
           style={{
-            background: "linear-gradient(to top, var(--cream) 0%, rgba(245,240,232,0.8) 30%, rgba(245,240,232,0) 100%)",
+            background: "linear-gradient(to top, var(--cream) 0%, rgba(228, 220, 211,0.8) 30%, rgba(228, 220, 211,0) 100%)",
             filter: "blur(8px)",
             WebkitFilter: "blur(8px)",
             transform: "translateY(10px) scaleX(1.05)", // slightly expand to hide hard blurred edges at the bottom/sides
@@ -215,21 +208,13 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
 
         {/* Interactive Overlay for Swiping & Arrows */}
         <div className="absolute inset-0 z-20 pointer-events-none">
-          <motion.div
-            className="absolute inset-0 pointer-events-auto cursor-grab active:cursor-grabbing"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
-            onDragEnd={handleDragEnd}
-          />
-          
           {/* Scroll indicator */}
           <motion.div
             style={{ opacity: indicatorOpacity }}
             className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none z-0"
           >
             <span className="font-sans text-xs uppercase tracking-widest text-forest opacity-80">
-              Scroll or Swipe
+              Scroll to Discover
             </span>
             <motion.div
               className="w-px bg-forest opacity-60"
@@ -237,24 +222,6 @@ export default function HeroCanvasScroll({ product, onNext, onPrev }: HeroCanvas
               transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
             />
           </motion.div>
-
-          {/* Swipe Chevrons */}
-          <div 
-            className="absolute top-1/2 left-4 -translate-y-1/2 pointer-events-auto cursor-pointer opacity-50 hover:opacity-100 transition-opacity text-forest p-4"
-            onClick={onPrev}
-          >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
-          </div>
-          <div 
-            className="absolute top-1/2 right-4 -translate-y-1/2 pointer-events-auto cursor-pointer opacity-50 hover:opacity-100 transition-opacity text-forest p-4"
-            onClick={onNext}
-          >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
-          </div>
         </div>
     </section>
   );
