@@ -48,7 +48,7 @@ export async function sendPurchase(formData: FormData) {
     const data = await resend.emails.send({
       from: "Wildflower Orders <orders@mywildflower.co.za>",
       to: [email],
-      bcc: ["somaya@mywildflower.co.za"],
+      bcc: ["somaya@mywildflower.co.za", "orders@mywildflower.co.za"],
       subject: `Your Wildflower Order: ${product}`,
       html: customerHtmlContent,
     });
