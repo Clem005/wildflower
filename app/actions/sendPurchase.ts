@@ -70,13 +70,13 @@ export async function sendPurchase(formData: FormData) {
       resend.emails.send({
         from: "Wildflower Orders <orders@mywildflower.co.za>",
         to: [email],
-        subject: \`Your Wildflower Order: \${product}\`,
+        subject: `Your Wildflower Order: ${product}`,
         html: customerHtmlContent,
       }),
       resend.emails.send({
         from: "Wildflower Orders <orders@mywildflower.co.za>",
         to: ["orders@mywildflower.co.za"],
-        subject: \`NEW ORDER: \${product} - \${fullName}\`,
+        subject: `NEW ORDER: ${product} - ${fullName}`,
         html: adminHtmlContent,
       })
     ]);
